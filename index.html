@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+  <!-- TAB 3: VIDEOS -->
+<div id="videos" class="tab-content">
+    <div class="content-grid" id="videos-grid">
+        <!-- Videos will be dynamically loaded here from the backend -->
+        <div class="content-card">
+            <div class="card-thumbnail">[Loading Videos...]</div>
+            <div class="card-body">
+                <div class="card-title">Fetching Stream...</div>
+                <p class="card-desc">Please wait while the server retrieves video assets.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript to fetch and display videos dynamically -->
+<script>
+    async function loadVideos() {
+        try {
+            const response = await fetch('/api/videos');
+            const videos = await response.json();
+            const grid = document.getElementById('videos-grid');
+            
+            if (videos.length === 0) {
+                grid.innerHTML = '<p style="color: var(--text-muted); padding: 20px;">No videos uploaded yet.</p>';
+                return;
+            }
+
+            grid.innerHTML = '';
+            videos.forEach(video => {
+                grid.innerHTML += `
+                    <div class="content-card">
+                        <div class="card-thumbnail">
+                            <video width="100%" height="100%" controls style="object-fit: cover;">
+                                <source src="${video.url}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-title">${video.title}</div>
+                            <p class="card-desc">${video.description || 'Uploaded via Telegram Bot'}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        } catch (err) {
+            console.error('Failed to load videos:', err);
+        }
+    }
+
+    // Call loadVideos when the page loads
+    window.addEventListener('DOMContentLoaded', loadVideos);
+</script>
+  
+</body>
+  </html>
