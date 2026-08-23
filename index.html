@@ -7,58 +7,49 @@
     <title>Document</title>
 </head>
 <body>
-  <!-- TAB 3: VIDEOS -->
+  <!-- TAB 3: VIDEOS (Dynamic Fetch Area) -->
 <div id="videos" class="tab-content">
-    <div class="content-grid" id="videos-grid">
-        <!-- Videos will be dynamically loaded here from the backend -->
+    <div class="content-grid" id="videos-grid-container">
+        <!-- Dynamic cards will load here via JavaScript -->
         <div class="content-card">
             <div class="card-thumbnail">[Loading Videos...]</div>
-            <div class="card-body">
-                <div class="card-title">Fetching Stream...</div>
-                <p class="card-desc">Please wait while the server retrieves video assets.</p>
-            </div>
         </div>
     </div>
 </div>
 
-<!-- JavaScript to fetch and display videos dynamically -->
 <script>
-    async function loadVideos() {
+    // Fetch videos list from your GitHub repository raw JSON or pages endpoint
+    async function loadDynamicVideos() {
         try {
-            const response = await fetch('/api/videos');
+            // Suppose you maintain a videos.json file in your repo listing uploaded titles and paths
+            const response = await fetch('https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/videos.json');
             const videos = await response.json();
-            const grid = document.getElementById('videos-grid');
             
-            if (videos.length === 0) {
-                grid.innerHTML = '<p style="color: var(--text-muted); padding: 20px;">No videos uploaded yet.</p>';
-                return;
-            }
+            const gridContainer = document.getElementById('videos-grid-container');
+            gridContainer.innerHTML = ''; // Clear loader
 
-            grid.innerHTML = '';
             videos.forEach(video => {
-                grid.innerHTML += `
-                    <div class="content-card">
-                        <div class="card-thumbnail">
-                            <video width="100%" height="100%" controls style="object-fit: cover;">
-                                <source src="${video.url}" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                        <div class="card-body">
-                            <div class="card-title">${video.title}</div>
-                            <p class="card-desc">${video.description || 'Uploaded via Telegram Bot'}</p>
-                        </div>
+                const card = document.createElement('div');
+                card.className = 'content-card';
+                card.innerHTML = `
+                    <div class="card-thumbnail" style="padding:0; overflow:hidden;">
+                        <video src="${video.url}" controls width="100%" height="160" style="object-fit:cover;"></video>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-title">${video.title}</div>
+                        <p class="card-desc">${video.description}</p>
                     </div>
                 `;
+                gridContainer.appendChild(card);
             });
-        } catch (err) {
-            console.error('Failed to load videos:', err);
+        } catch (error) {
+            console.error('Error loading videos:', error);
         }
     }
 
-    // Call loadVideos when the page loads
-    window.addEventListener('DOMContentLoaded', loadVideos);
+    // Call on page load
+    window.addEventListener('DOMContentLoaded', loadDynamicVideos);
 </script>
-  
+
 </body>
   </html>
