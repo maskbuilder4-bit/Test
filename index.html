@@ -61,6 +61,59 @@
     // Call on page load
     window.addEventListener('DOMContentLoaded', loadDynamicVideos);
 </script>
+<!-- TAB/SECTION FOR IMAGES -->
+<div id="images-section" class="tab-content">
+    <div class="content-grid" id="images-grid-container">
+        <!-- Dynamic cards will load here via JavaScript -->
+        <div class="content-card">
+            <div class="card-thumbnail">[Loading Images...]</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Fetch images list from your GitHub repository raw pics.json endpoint
+    async function loadDynamicImages() {
+        try {
+            const timestamp = new Date().getTime();
+            const response = await fetch(`https://raw.githubusercontent.com/maskbuilder4-bit/Test/main/pics.json?t=${timestamp}`);
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch pics manifest.');
+            }
+
+            const images = await response.json();
+            const gridContainer = document.getElementById('images-grid-container');
+            gridContainer.innerHTML = ''; // Clear loader
+
+            if (!images || images.length === 0) {
+                gridContainer.innerHTML = '<div class="content-card"><div class="card-body"><div class="card-title">No images uploaded yet.</div></div></div>';
+                return;
+            }
+
+            images.forEach(img => {
+                const card = document.createElement('div');
+                card.className = 'content-card';
+                card.innerHTML = `
+                    <div class="card-thumbnail" style="padding:0; overflow:hidden; background:#000;">
+                        <img src="${img.url}" alt="${img.title}" width="100%" height="160" style="object-fit:cover;">
+                    </div>
+                    <div class="card-body">
+                        <div class="card-title">${img.title}</div>
+                        <p class="card-desc">${img.description}</p>
+                    </div>
+                `;
+                gridContainer.appendChild(card);
+            });
+        } catch (error) {
+            console.error('Error loading images:', error);
+            document.getElementById('images-grid-container').innerHTML = '<div class="content-card"><div class="card-body"><div class="card-title">Could not load images at this time.</div></div></div>';
+        }
+    }
+
+    // Call on page load
+    window.addEventListener('DOMContentLoaded', loadDynamicImages);
+</script>
 
 </body>
 </html>
